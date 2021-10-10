@@ -13,7 +13,7 @@ public class tile extends JButton {
     private int x_coor;
     private int y_coor;
 
-    // Neigbors of the tile
+    // Neighbors of the tile
     // 0 1 2
     // 3 t 4
     // 5 6 7
@@ -51,28 +51,28 @@ public class tile extends JButton {
         // 3 t 4
         // 5 6 7
         ArrayList<Integer> n0 = new ArrayList<Integer>();
-        n0.add(x+1);
+        n0.add(x-1);
         n0.add(y-1);
         ArrayList<Integer> n1 = new ArrayList<Integer>();
-        n1.add(x+1);
-        n1.add(y);
+        n1.add(x);
+        n1.add(y-1);
         ArrayList<Integer> n2 = new ArrayList<Integer>();
         n2.add(x+1);
-        n2.add(y+1);
+        n2.add(y-1);
         ArrayList<Integer> n3 = new ArrayList<Integer>();
-        n3.add(x);
-        n3.add(y-1);
+        n3.add(x-1);
+        n3.add(y);
         ArrayList<Integer> n4 = new ArrayList<Integer>();
-        n4.add(x);
-        n4.add(y+1);
+        n4.add(x+1);
+        n4.add(y);
         ArrayList<Integer> n5 = new ArrayList<Integer>();
         n5.add(x-1);
-        n5.add(y-1);
+        n5.add(y+1);
         ArrayList<Integer> n6 = new ArrayList<Integer>();
-        n6.add(x-1);
-        n6.add(y);
+        n6.add(x);
+        n6.add(y+1);
         ArrayList<Integer> n7 = new ArrayList<Integer>();
-        n7.add(x-1);
+        n7.add(x+1);
         n7.add(y+1);
         neighbor = new ArrayList<ArrayList<Integer>>();
         neighbor.add(n0);
@@ -129,10 +129,18 @@ public class tile extends JButton {
     public void setTrap(){
         trap = true;
     }
+    public void unsetTrap(){
+        trap = false;
+    }
     public void setFlipped(){
         // Check if flagged, can only flip if not flagged or already flipped
         if(!flagged && !flipped){
             flipped = true;
+            if(neighbor_traps > 0) {
+                button.setText(String.valueOf(neighbor_traps));
+            }
+            button.setBackground(Color.white);
+            //System.out.print(x_coor + ":" + y_coor + " flipped\n");
         }
     }
     public void setFlagged(){
@@ -147,6 +155,7 @@ public class tile extends JButton {
             }
             else{
                 // Add flag image
+                // FIGURE OUT HOW TO SCALE IMAGE
                 button.setIcon(flag);
                 // Change flagged to true
                 flagged = true;
