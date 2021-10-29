@@ -335,72 +335,96 @@ public class polyPanel extends JPanel{
         g.fillRect(x , y , 1,1);
     }
 
-    public void bspline(Graphics2D g2d){
-        double x, y, xold, yold, A, B, C;
-        double t1, t2, t3;
-        double deltax1, deltax2, deltax3;
-        double deltay1, deltay2, deltay3;
+    public void paintCurve ( Graphics2D g ) {
         int count = curr_poly.npoints;
         int limit = 4;
         int intervals = 20;
-        int[] xpoints = curr_poly.xpoints;
-        int[] ypoints = curr_poly.ypoints;
+
+        int xp[];
+        int yp[];
+
+        xp = new int[count];
+        yp = new int[count];
 
         // must have at least 4 points
         if (count < limit)
             return;
 
-        for(int i = 0; i < curr_poly.npoints - 3; i++) {
-            //  This is forward differencing code to draw fast Bspline
-            t1 = 1.0 / intervals;
-            t2 = t1 * t1;
-            t3 = t2 * t1;
 
-            //  For B-spline curve, "D" is the starting x,y coord
-            //  So the first x,y coord is the D term from the cubic equation
-            x = (xpoints[i] + 4.0 * xpoints[i+1] + xpoints[i+2]) / 6.0;
-            y = (ypoints[i] + 4.0 * ypoints[i+1] + ypoints[i+2]) / 6.0;
+        for (int segment=0; segment<count; segment++) {
+            for (int count2=0,i=segment; count2<count; count2++,i=(i+1)%count) {
+                xp[count2] = curr_poly.xpoints[i];
+                yp[count2] = curr_poly.ypoints[i];
+            }
+            paintCurveSegment (g, xp, yp );
+        }
+    }
+
+    public void paintCurveSegment ( Graphics2D g, int[]xp, int[]yp ) {
+        double x, y, xold, yold, A, B, C;
+        double t1, t2, t3;
+        double deltax1, deltax2, deltax3;
+        double deltay1, deltay2, deltay3;
+
+        int count = curr_poly.npoints;
+        int limit = 4;
+        int intervals = 20;
+
+        // must have at least 4 points
+        if (count < limit)
+            return;
+
+        //  This is forward differencing code to draw fast Bspline
+        t1 = 1.0/intervals;
+        t2 = t1*t1;
+        t3 = t2*t1;
+
+        //  For B-spline curve, "D" is the starting x,y coord
+        //  So the first x,y coord is the D term from the cubic equation
+        x= (xp[0]+4.0*xp[1]+xp[2]) / 6.0;
+        y= (yp[0]+4.0*yp[1]+yp[2]) / 6.0;
+        xold = x;
+        yold = y;
+
+        // set up deltas for the x-coords of B-spline
+        A = (-xp[0] + 3*xp[1] - 3*xp[2] + xp[3]) / 6.0;
+        B = (3*xp[0] - 6*xp[1] + 3*xp[2]) / 6.0;
+        C = (-3*xp[0] + 3*xp[2]) / 6.0;
+
+        deltax1 = A*t3 + B*t2 + C*t1;
+        deltax2 = 6*A*t3 + 2*B*t2;
+        deltax3 = 6*A*t3;
+
+        // set up deltas for the y-coords
+        A = (-yp[0] + 3*yp[1] - 3*yp[2] + yp[3]) / 6.0;
+        B = (3*yp[0] - 6*yp[1] + 3*yp[2]) / 6.0;
+        C = (-3*yp[0] + 3*yp[2]) / 6.0;
+
+        deltay1 = A*t3 + B*t2 + C*t1;
+        deltay2 = 6*A*t3 + 2*B*t2;
+        deltay3 = 6*A*t3;
+
+        Graphics2D picture = (Graphics2D)g;
+        picture.setStroke(new BasicStroke(3));
+        picture.setColor (Color.RED);
+
+        for (int i = 0; i < intervals; i++) {
+            x += deltax1;
+            deltax1 += deltax2;
+            deltax2 += deltax3;
+
+            y += deltay1;
+            deltay1 += deltay2;
+            deltay2 += deltay3;
+
+            picture.drawLine ((int)xold, (int)yold, (int)x, (int)y);
             xold = x;
             yold = y;
-
-            // set up deltas for the x-coords of B-spline
-            A = (-xpoints[i] + 3 * xpoints[i+1] - 3 * xpoints[i+2] + xpoints[i+3]) / 6.0;
-            B = (3 * xpoints[i] - 6 * xpoints[i+1] + 3 * xpoints[i+2]) / 6.0;
-            C = (-3 * xpoints[i] + 3 * xpoints[i+2]) / 6.0;
-
-            deltax1 = A * t3 + B * t2 + C * t1;
-            deltax2 = 6 * A * t3 + 2 * B * t2;
-            deltax3 = 6 * A * t3;
-
-            // set up deltas for the y-coords
-            A = (-ypoints[i] + 3 * ypoints[i+1] - 3 * ypoints[i+2] + ypoints[i+3]) / 6.0;
-            B = (3 * ypoints[i] - 6 * ypoints[i+1] + 3 * ypoints[i+2]) / 6.0;
-            C = (-3 * ypoints[i] + 3 * ypoints[i+2]) / 6.0;
-
-            deltay1 = A * t3 + B * t2 + C * t1;
-            deltay2 = 6 * A * t3 + 2 * B * t2;
-            deltay3 = 6 * A * t3;
-
-            g2d.setStroke(new BasicStroke(3));
-            g2d.setColor(Color.RED);
-
-            for (int j = 0; j < intervals; j++) {
-                x += deltax1;
-                deltax1 += deltax2;
-                deltax2 += deltax3;
-
-                y += deltay1;
-                deltay1 += deltay2;
-                deltay2 += deltay3;
-
-                g2d.drawLine((int) xold, (int) yold, (int) x, (int) y);
-                xold = x;
-                yold = y;
-            }
-
-            g2d.setStroke(new BasicStroke(1));
-            g2d.setColor(poly_color);
         }
+
+        picture.setStroke(new BasicStroke(1));
+        picture.setColor (poly_color);
+
     }
 
     // Paint component override
@@ -425,7 +449,7 @@ public class polyPanel extends JPanel{
             draw_poly_by_bres(g2d);
         }
         if(bspline_mode){
-            bspline(g2d);
+            paintCurve(g2d);
         }
 
         // If polygon should be filled, fill it

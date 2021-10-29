@@ -408,7 +408,7 @@ public class polygon_driver extends JFrame implements ActionListener, MouseListe
         // If the polygon is being built
         if(dragging) {
             dragging = false;
-            polygon_panel.new_polygon(drag_poly, bspline, filled_mode, true);
+            polygon_panel.new_polygon2(drag_poly);
             c.repaint();
         }
     }
