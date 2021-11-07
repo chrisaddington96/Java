@@ -24,6 +24,23 @@ public class ImageFrame extends JLabel{
     private final float[] EDGE3x3 =
             {0.f, -1.f, 0.f, -1.f, 4.0f, -1.f, 0.f, -1.f, 0.f};
 
+    // Normalized Kernels
+    private final float[] kernel3x3 =
+            {0.10205837f, 0.11534902f, 0.10205837f, 0.11534902f, 0.13037045f, 0.11534902f, 0.10205837f, 0.11534902f, 0.10205837f};
+    private final float[] kernel5x5 =
+            {0.023527987f, 0.033969555f, 0.03839327f, 0.033969555f, 0.023527987f, 0.033969555f, 0.049045023f, 0.055431955f, 0.049045023f,
+                    0.033969555f, 0.03839327f, 0.055431955f, 0.06265063f, 0.055431955f, 0.03839327f, 0.033969555f, 0.049045023f, 0.055431955f,
+                    0.049045023f, 0.033969555f, 0.023527987f, 0.033969555f, 0.03839327f, 0.033969555f, 0.023527987f};
+    private final float[] kernel7x7 =
+            {0.0050841793f, 0.009377408f, 0.013539041f, 0.015302175f, 0.013539041f, 0.009377408f, 0.0050841793f, 0.009377408f, 0.017295964f, 0.0249718f,
+                    0.028223775f, 0.0249718f, 0.017295964f, 0.009377408f, 0.013539041f, 0.0249718f, 0.036054123f, 0.040749304f, 0.036054123f, 0.0249718f,
+                    0.013539041f, 0.015302175f, 0.028223775f, 0.040749304f, 0.04605592f, 0.040749304f, 0.028223775f, 0.015302175f, 0.013539041f, 0.0249718f,
+                    0.036054123f, 0.040749304f, 0.036054123f, 0.0249718f, 0.013539041f, 0.009377408f, 0.017295964f, 0.0249718f, 0.028223775f, 0.0249718f,
+                    0.017295964f, 0.009377408f, 0.0050841793f, 0.009377408f, 0.013539041f, 0.015302175f, 0.013539041f, 0.009377408f, 0.0050841793f};
+
+    // Kernel size for blur operation, default is 3x3 kernel
+    private int kernelSize = 1;
+
     // Constructor with no arguments
     public ImageFrame() {}
 
@@ -50,6 +67,11 @@ public class ImageFrame extends JLabel{
         this.repaint();
     }
 
+    // Set operation to set kernel size
+    public void setKernelSize(int size){
+        kernelSize = size;
+    }
+
     // accessor to get a handle to the bufferedimage object stored here
     public BufferedImage getImage() {
         return bim;
@@ -60,6 +82,37 @@ public class ImageFrame extends JLabel{
         if (bim == null) return;
         showfiltered=false;
         this.repaint();
+    }
+
+    //  apply the blur operator
+    public void BlurImage() {
+        if (bim == null) return;
+        Kernel kernel = null;
+        if(kernelSize == 1) {
+            kernel = new Kernel(3, 3, kernel3x3);
+        }
+        else if(kernelSize == 2){
+            kernel = new Kernel(5, 5, kernel5x5);
+        }
+        else if(kernelSize == 3){
+            kernel = new Kernel(7, 7, kernel7x7);
+        }
+        if(kernel != null) {
+            ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
+
+            // make a copy of the buffered image
+            BufferedImage newbim = new BufferedImage
+                    (bim.getWidth(), bim.getHeight(),
+                            BufferedImage.TYPE_INT_RGB);
+            Graphics2D big = newbim.createGraphics();
+            big.drawImage(bim, 0, 0, null);
+
+            // apply the filter the copied image
+            // result goes to a filtered copy
+            cop.filter(newbim, filteredbim);
+            showfiltered = true;
+            this.repaint();
+        }
     }
 
     //  get a graphics context and show either filtered image or
