@@ -1,12 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
-import java.awt.geom.*;
-import java.awt.image.*;
 import java.io.*;
 import java.util.Arrays;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.imageio.*;
 
 public class Gblur extends JFrame implements ActionListener{
@@ -16,9 +13,6 @@ public class Gblur extends JFrame implements ActionListener{
     private JLabel infoLabel;      // an informative label for the simple GUI
     private JButton BlurButton;    // Button to trigger blur operator
     private JButton resetButton; // Button to restore original image
-    private JTextField filterfield[];
-    private float customfiltervalues[];
-    private int rotation=0;
     private int kernelSize = 1;
 
     private JRadioButtonMenuItem small;
@@ -32,8 +26,6 @@ public class Gblur extends JFrame implements ActionListener{
 
         // Build the GUI
         buildGUI();
-
-        // Build the display
     }
 
     // Build GUI
