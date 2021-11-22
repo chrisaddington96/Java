@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Jmorph.iml" filepath="$PROJECT_DIR$/Jmorph.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javam.iml" filepath="$PROJECT_DIR$/javam.iml" />
     </modules>
   </component>
 </project>
